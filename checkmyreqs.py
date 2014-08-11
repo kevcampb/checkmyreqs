@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/home/kev/.virtualenvs/alvafit/bin/python
 # coding=utf-8
 
 """
@@ -91,27 +91,31 @@ def check_packages(packages, python_version):
             elif major_python_version in supported_pythons:
                 print(TERMINAL.green('compatible'))
             else:
+
                 latest_version = package_releases[0]
                 latest_package_info = CLIENT.release_data(package_name, latest_version)
                 latest_supported_pythons = get_supported_pythons(latest_package_info)
 
-                upgrade_available = ''
+                if python_version in latest_supported_pythons:
+                    upgrade_available = True
+                elif major_python_version in latest_supported_pythons:
+                    upgrade_available = True
+                else:
+                    upgrade_available = False
 
+                upgrade_text = ''
 
                 if supported_pythons:
+                    if upgrade_available:
+                        upgrade_text = ' - update to v{} for explicit support'.format(latest_version)
+                    print(TERMINAL.red('not compatible{}'.format(upgrade_text)))
 
-                    if python_version in latest_supported_pythons:
-                        upgrade_available = ' - update to v{} for support'.format(latest_version)
-
-                    print(TERMINAL.red('not compatible{}'.format(upgrade_available)))
                 else:
                     # We get here if there was not compatability information for
                     # the package version we requested
-
-                    if python_version in latest_supported_pythons:
-                        upgrade_available = ' - update to v{} for explicit support'.format(latest_version)
-
-                    print(TERMINAL.yellow('not specified{}').format(upgrade_available))
+                    if upgrade_available:
+                        upgrade_text = ' - update to v{} for explicit support'.format(latest_version)
+                    print(TERMINAL.yellow('not specified{}').format(upgrade_text))
 
         else:
             print(TERMINAL.red('not listed on pypi.python.org'))
